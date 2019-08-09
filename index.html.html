@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const canvas = document.createElement('canvas');
+        const w_h = 500;
+        canvas.width = w_h;
+        canvas.height = w_h;
+        document.body.appendChild(canvas);
+        canvas.style.border = '1px solid #ccc';
+        const ctx = canvas.getContext('2d');
+        function Painter() {
+
+        }
+        Painter.prototype = {
+            constructor: Painter,
+            zzt() {
+                var shoping = [
+                    {
+                        name: 'anpple',
+                        price: 200,
+                    },
+                    {
+                        name: 'banana',
+                        price: 100,
+                    },
+                    {
+                        name: 'orange',
+                        price: 250,
+                    },
+                    {
+                        name: 'bear',
+                        price: 50,
+                    },
+                    {
+                        name: 'tomato',
+                        price: 500,
+                    },
+                    {
+                        name: 'mottle',
+                        price: 100,
+                    },
+                ]
+
+                // 然后再求出数据中的最大值（json.parse转对象）(JSON。stringify转为字符串)
+                var MaxPrice = JSON.parse(JSON.stringify(shoping)).sort(function (a, b) {
+                    return b.price - a.price;
+                })[0].price;
+
+                // 求出矩形之间的间距(用横轴的宽除以数组的长度加一)
+                var margin = 400 / (shoping.length + 1);
+
+                // 移动画布将原点变为（50,450）
+                ctx.translate(50, 450);
+
+                draw()
+
+                // 清除画布
+                canvas.addEventListener('mousemove', function (e) {
+                    ctx.clearRect(-50, -450, 500, 500);
+                        draw(e)
+                })
+
+
+                // 开始画轴
+                function draw(e) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(400, 0);
+                    // y轴
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(0, -400);
+                    ctx.stroke();
+                    // 画刻度
+                    ctx.save();
+                    ctx.textAlign = 'end';
+                    ctx.textBaseline = 'middle';
+                    for (var i = 0; i <= 400; i += 50) {
+                        ctx.beginPath();
+                        ctx.moveTo(-5, -i);
+                        ctx.lineTo(400, -i);
+                        // 想下取整 （用求出最大值乘以 美分所占的比例)得出所占得的刻度，-15为横坐标，-i为纵坐标
+                        ctx.fillText(Math.floor(MaxPrice * (i / 400)), -15, -i);
+                        console.log(MaxPrice * (i / 400));
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+
+
+                    // 化数据
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    for (var i = 0; i < shoping.length; i++) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.fillText(shoping[i].name, margin * i + 50, 15);
+                        // 四个参数 横坐标 纵坐标 宽 高
+                        ctx.rect(margin * i + 40, 0, 20, -shoping[i].price / MaxPrice * 400);
+                        ctx.closePath();
+
+                        // 判断
+                        if(e && ctx.isPointInPath(e.offsetX,e.offsetY)) {
+                            ctx.fillStyle = 'yellow';
+                            // 每一件商品的价钱，间隔，
+                            ctx.fillText(shoping[i].price,margin * i + 50,-shoping[i].price / MaxPrice * 420);  
+                        }
+                        ctx.fillText(shoping[i].name, margin * i + 50, 15);
+                        ctx.fill()
+                        ctx.restore();
+                    }
+                }
+            }
+        }
+        var painter = new Painter();
+        painter.zzt();
+    </script>
+</body>
+
+</html>
